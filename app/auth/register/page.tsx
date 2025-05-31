@@ -47,8 +47,12 @@ export default function RegisterPage() {
           router.push("/auth/login");
         }, 2000);
       }
-    } catch (error: any) {
-      setMessage(error.message || "登録に失敗しました");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage(error.message || "登録に失敗しました");
+      } else {
+        setMessage("登録に失敗しました");
+      }
     } finally {
       setLoading(false);
     }

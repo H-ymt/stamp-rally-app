@@ -37,8 +37,12 @@ export default function LoginPage() {
       } else {
         router.push("/dashboard");
       }
-    } catch (error: any) {
-      setMessage(error.message || "ログインに失敗しました");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage(error.message || "ログインに失敗しました");
+      } else {
+        setMessage("ログインに失敗しました");
+      }
     } finally {
       setLoading(false);
     }

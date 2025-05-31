@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
+import { User } from "@supabase/supabase-js";
 import { useRouter, useSearchParams } from "next/navigation";
 import QrScanner from "qr-scanner";
 
 export default function ScanPage() {
   const [scanning, setScanning] = useState(false);
   const [message, setMessage] = useState("");
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const qrScannerRef = useRef<QrScanner | null>(null);
   const router = useRouter();
@@ -121,6 +122,10 @@ export default function ScanPage() {
 
   const processStampCollection = async (spotId: string, date: string) => {
     try {
+      if (!user) {
+        setMessage("ユーザー情報が取得できませんでした。");
+        return;
+      }
       // 今日の日付チェック
       const today = new Date().toISOString().split("T")[0];
       if (date !== today) {
