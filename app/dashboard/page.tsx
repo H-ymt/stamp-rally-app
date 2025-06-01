@@ -1,7 +1,6 @@
 "use client";
 
-// import type { User } from "@supabase/supabase-js";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
@@ -33,27 +32,9 @@ export default function Dashboard() {
   const [userStamps, setUserStamps] = useState<UserStamp[]>([]);
   const [allSpots, setAllSpots] = useState<StampSpot[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      router.push("/auth/login");
-      return;
-    }
-    await Promise.all([fetchUserStamps(user.id), fetchAllSpots()]);
-    setLoading(false);
-  };
-
-  const fetchUserStamps = async (userId: string) => {
+  const fetchUserStamps = useCallback(async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from("user_stamps")
@@ -74,7 +55,7 @@ export default function Dashboard() {
 
       if (error) throw error;
       setUserStamps(
-        ((data as UserStampRaw[]) || []).map((item) => ({
+        ((data as UserStampRaw[]) || []).map((item: UserStampRaw) => ({
           ...item,
           stamp_spots: Array.isArray(item.stamp_spots)
             ? item.stamp_spots[0]
@@ -84,9 +65,9 @@ export default function Dashboard() {
     } catch (error) {
       console.error("スタンプ取得エラー:", error);
     }
-  };
+  }, []);
 
-  const fetchAllSpots = async () => {
+  const fetchAllSpots = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("stamp_spots")
@@ -98,7 +79,23 @@ export default function Dashboard() {
     } catch (error) {
       console.error("スポット取得エラー:", error);
     }
-  };
+  }, []);
+
+  const checkUser = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
+    await Promise.all([fetchUserStamps(user.id), fetchAllSpots()]);
+    setLoading(false);
+  }, [router, fetchUserStamps, fetchAllSpots]);
+
+  useEffect(() => {
+    checkUser();
+  }, [checkUser]);
 
   const collectedSpotIds = new Set(userStamps.map((stamp) => stamp.stamp_spots.id));
   const progressPercentage =
