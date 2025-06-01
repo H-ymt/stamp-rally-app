@@ -1,6 +1,6 @@
 "use client";
 
-import type { User } from "@supabase/supabase-js";
+// import type { User } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,12 @@ interface UserStamp {
   };
 }
 
+type UserStampRaw = {
+  id: string;
+  collected_at: string;
+  stamp_spots: UserStamp["stamp_spots"][] | UserStamp["stamp_spots"];
+};
+
 interface StampSpot {
   id: string;
   name: string;
@@ -28,7 +34,7 @@ export default function Dashboard() {
   const [allSpots, setAllSpots] = useState<StampSpot[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [user, setUser] = useState<User | null>(null);
+  // const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -43,7 +49,6 @@ export default function Dashboard() {
       router.push("/auth/login");
       return;
     }
-    setUser(user);
     await Promise.all([fetchUserStamps(user.id), fetchAllSpots()]);
     setLoading(false);
   };
@@ -54,22 +59,22 @@ export default function Dashboard() {
         .from("user_stamps")
         .select(
           `
+        id,
+        collected_at,
+        stamp_spots (
           id,
-          collected_at,
-          stamp_spots (
-            id,
-            name,
-            description,
-            location
-          )
-        `
+          name,
+          description,
+          location
+        )
+      `
         )
         .eq("user_id", userId)
         .order("collected_at", { ascending: false });
 
       if (error) throw error;
       setUserStamps(
-        (data || []).map((item: any) => ({
+        ((data as UserStampRaw[]) || []).map((item) => ({
           ...item,
           stamp_spots: Array.isArray(item.stamp_spots)
             ? item.stamp_spots[0]
