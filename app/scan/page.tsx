@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { Suspense } from "react";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { useRouter, useSearchParams } from "next/navigation";
 import QrScanner from "qr-scanner";
 
-export default function ScanPage() {
+// 内部ロジックを別コンポーネントに分離
+function ScanPageInner() {
   const [scanning, setScanning] = useState(false);
   const [message, setMessage] = useState("");
   const [user, setUser] = useState<User | null>(null);
@@ -30,6 +32,7 @@ export default function ScanPage() {
         qrScannerRef.current.destroy();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const checkUser = async () => {
@@ -257,5 +260,17 @@ export default function ScanPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ScanPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-screen">読み込み中...</div>
+      }
+    >
+      <ScanPageInner />
+    </Suspense>
   );
 }
