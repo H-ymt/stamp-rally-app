@@ -106,7 +106,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 bg-background">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">マイダッシュボード</h1>
 
@@ -148,7 +148,9 @@ export default function Dashboard() {
                   <p className="text-gray-600 text-sm mb-2">{stamp.stamp_spots.description}</p>
                 )}
                 {stamp.stamp_spots.location && (
-                  <p className="text-gray-500 text-sm mb-2">📍 {stamp.stamp_spots.location}</p>
+                  <p className="text-foreground/80 text-sm mb-2">
+                    📍 {stamp.stamp_spots.location}
+                  </p>
                 )}
                 <p className="text-xs text-gray-400">
                   取得日時: {new Date(stamp.collected_at).toLocaleString("ja-JP")}
@@ -162,7 +164,7 @@ export default function Dashboard() {
             ))}
           </div>
         ) : (
-          <p className="text-gray-500">
+          <p className="text-foreground/80">
             まだスタンプを取得していません。QRコードをスキャンして始めましょう！
           </p>
         )}
@@ -182,7 +184,7 @@ export default function Dashboard() {
                     <p className="text-gray-600 text-sm mb-2">{spot.description}</p>
                   )}
                   {spot.location && (
-                    <p className="text-gray-500 text-sm mb-2">📍 {spot.location}</p>
+                    <p className="text-foreground/80 text-sm mb-2">📍 {spot.location}</p>
                   )}
                   <div className="mt-2">
                     <span className="inline-block bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">
